@@ -1,0 +1,7 @@
+-- DROP TABLE song;
+--
+-- create table if not exists song(
+--     id bigserial primary key,
+--     artist varchar(255) not null,
+--     name varchar(255) not null
+-- );
