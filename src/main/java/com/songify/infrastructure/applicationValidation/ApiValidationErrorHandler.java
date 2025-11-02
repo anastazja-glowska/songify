@@ -9,7 +9,7 @@ import com.songify.infrastructure.crud.song.controller.SongsRestController;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@ControllerAdvice(assignableTypes = SongsRestController.class)
+@ControllerAdvice
 public class ApiValidationErrorHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

@@ -47,7 +47,7 @@ You can add an artist (artist name)
 
 
 
-HAPPY PATH (user tworzy album "Eminema" z piosenkami "Til i collapse", "Lose Yourself", o gatunku Rap)
+HAPPY PATH (user create album "Eminem" with songs "Til i collapse", "Lose Yourself", with genre Rap)
 
 given there is no songs, artists, albums and genres created before
 

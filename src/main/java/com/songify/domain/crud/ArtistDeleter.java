@@ -17,23 +17,15 @@ import java.util.stream.Collectors;
 @Transactional
 class ArtistDeleter {
 
-   private final ArtistRepository artistRepository;
-   private final AlbumRetriever albumRetriever;
-   private final ArtistRetriever artistRetriever;
-   private final SongDeleter songDeleter;
-   private final AlbumDeleter albumDeleter;
-   private final AlbumRepository albumRepository;
-   private final  SongRepository songRepository;
+    private final ArtistRepository artistRepository;
+    private final AlbumRetriever albumRetriever;
+    private final ArtistRetriever artistRetriever;
+    private final SongDeleter songDeleter;
+    private final AlbumDeleter albumDeleter;
+    private final AlbumRepository albumRepository;
+    private final SongRepository songRepository;
 
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
-
-//    void deleteAlbumFromArtist(Long artistId, Long albumId) {
-//        artistRetriever.findById(artistId);
-//        artistRepository.removeAlbumFromArtist(artistId, albumId);
-//    }
 
 
     public void deleteArtistByIdWithAlbumsAndSongs(Long artistId) {
@@ -52,7 +44,7 @@ class ArtistDeleter {
             albumRepository.save(album);
         }
 
-        entityManager.flush();
+
 
 
         Set<Album> updatedAlbums = albumRetriever.findAlbumsByArtistId(artistId);
@@ -67,10 +59,9 @@ class ArtistDeleter {
         log.info("artist ids in updated albums: {}", artistIds);
 
 
-        for(Album album : updatedAlbums) {
+        for (Album album : updatedAlbums) {
             log.info("Deleting album {}", album.getId());
         }
-
 
 
         Set<Album> orphanedAlbums = updatedAlbums.stream()
@@ -98,8 +89,6 @@ class ArtistDeleter {
 
         artistRepository.deleteById(artistId);
     }
-
-
 
 
 //    void deleteArtistByIdWithAlbumsAndSongs(Long artistId) {

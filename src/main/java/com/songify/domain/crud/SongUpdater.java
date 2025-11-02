@@ -22,7 +22,7 @@ class SongUpdater {
 
 
      void updateById(Long id, Song newSong) {
-        Song songById = songRetrierver.findSongById(id);
+        songRetrierver.findSongById(id);
         songRepository.updateById(id, newSong);
 
     }

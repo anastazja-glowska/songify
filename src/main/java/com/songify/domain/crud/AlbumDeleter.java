@@ -23,8 +23,4 @@ class AlbumDeleter {
         albumRepository.deleteById(albumId);
     }
 
-//    void deleteAllSongsByIds(Set<Long> songsIdsToDelete) {
-//
-//        albumRepository.deleteSongsByIdIn(songsIdsToDelete);
-//    }
 }

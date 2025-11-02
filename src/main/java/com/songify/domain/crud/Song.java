@@ -10,10 +10,14 @@ import java.time.Instant;
 @Entity
 @Getter
 @Setter
-@Table(name = "song")
-@ToString
+
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "song",
+indexes = @Index(
+        name = "idx_song_name",
+        columnList = "name"
+))
  public class Song extends BaseEntity {
     @Id
     @GeneratedValue(generator = "song_id_seq", strategy = GenerationType.SEQUENCE)

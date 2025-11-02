@@ -26,12 +26,6 @@ import static java.util.Arrays.stream;
 
      List< SongDto> findAll(Pageable pageable) {
         log.info("Retriving all songs");
-//        return songRepository.findAll(pageable).stream()
-//                .map(s -> SongDto.builder()
-//                        .id(s.getId())
-//                        .name(s.getName())
-//                        .build())
-//                .collect(Collectors.toList());
 
          List<SongDto> songDtos = new ArrayList<>();
          List<Song> songs = songRepository.findAll(pageable);
@@ -68,26 +62,4 @@ import static java.util.Arrays.stream;
                 .orElseThrow(() -> new SongNotFoundException("Song not found"));
     }
 
-
-
-
-//     Song compareSongs() {
-//        final List<Song> songs = new ArrayList<>();
-//        Song song = songRepository.findById(12L)
-//                .orElseThrow(() -> new SongNotFoundException("Song not found"));
-//
-//        Song song1 = songRepository.findById(14L)
-//                .orElseThrow(() -> new SongNotFoundException("Song not found"));
-//
-////        log.info("adding new song " + song.hashCode());
-//        songs.add(song);
-//        songs.add(song1);
-//
-////        for(Song s : songs) {
-////            log.info("s hashcode " + s.hashCode()  );
-////        }
-//
-//        log.info(songs.get(0).equals(songs.get(1)));
-//        return song;
-//    }
 }
