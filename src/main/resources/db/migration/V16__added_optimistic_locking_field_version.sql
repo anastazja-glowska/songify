@@ -1,0 +1,26 @@
+ALTER TABLE album
+    ADD version BIGINT;
+
+ALTER TABLE artist
+    ADD version BIGINT;
+
+ALTER TABLE genre
+    ADD version BIGINT;
+
+ALTER TABLE song
+    ADD version BIGINT;
+
+ALTER TABLE genre
+    ALTER COLUMN name DROP NOT NULL;
+
+ALTER TABLE album
+    ALTER COLUMN uuid DROP NOT NULL;
+
+ALTER TABLE artist
+    ALTER COLUMN uuid DROP NOT NULL;
+
+ALTER TABLE genre
+    ALTER COLUMN uuid DROP NOT NULL;
+
+ALTER TABLE song
+    ALTER COLUMN uuid DROP NOT NULL;
