@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 class InMemorySongRepository implements  SongRepository {
 
@@ -26,7 +27,8 @@ class InMemorySongRepository implements  SongRepository {
 
     @Override
     public List<Song> findAll(Pageable pageable) {
-        return List.of();
+        return db.values().stream().collect(Collectors.toList());
+
     }
 
     @Override

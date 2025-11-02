@@ -47,7 +47,7 @@ public class SongifyCrudFasade {
     }
 
     public AlbumDto addAlbumWithSong(AlbumRequestDto dto){
-        return albumAdder.addAlbum(dto.songId(), dto.title(), dto.releaseDate());
+        return albumAdder.addAlbum(dto.songIds(), dto.title(), dto.releaseDate());
     }
 
     public SongDto addSong(SongRequestDto songDto) {
@@ -130,12 +130,20 @@ public class SongifyCrudFasade {
         return albumRetriever.findAlbumsDtoByArtistId(id);
     }
 
-    Long countArtistsByAlbumId(Long albumId) {
+    public Long countArtistsByAlbumId(Long albumId) {
         return albumRetriever.countArtistsByAlbumId(albumId);
     }
 
-    AlbumDto findAlbumById(Long albumId) {
-        Album album = albumRetriever.findById(albumId);
-        return new AlbumDto(album.getId(), album.getTitle());
+    public AlbumDto findAlbumById(Long albumId) {
+        return albumRetriever.findAlbumDtoById(albumId);
+
+    }
+
+    public Set<AlbumDto> findAllAlbums() {
+        return albumRetriever.findAll();
+    }
+
+    void addSongToAlbum(SongDto songDto2, Long albumId) {
+        albumAdder.addSongToAlbum(songDto2, albumId);
     }
 }

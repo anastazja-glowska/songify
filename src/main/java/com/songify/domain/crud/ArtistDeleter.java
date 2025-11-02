@@ -28,123 +28,50 @@ class ArtistDeleter {
 
 
 
-    public void deleteArtistByIdWithAlbumsAndSongs(Long artistId) {
+
+    void deleteArtistByIdWithAlbumsAndSongs(Long artistId) {
         Artist artist = artistRetriever.findById(artistId);
         Set<Album> artistAlbums = albumRetriever.findAlbumsByArtistId(artistId);
-
-        if (artistAlbums.isEmpty()) {
-            log.info("No albums found for artist with id {}", artistId);
+        if(artistAlbums.isEmpty()){
+            log.info("No albums found with id {} ", artistId);
             artistRepository.deleteById(artistId);
             return;
         }
 
 
-        for (Album album : artistAlbums) {
-            album.removeArtist(artist);
-            albumRepository.save(album);
-        }
-
-
-
-
-        Set<Album> updatedAlbums = albumRetriever.findAlbumsByArtistId(artistId);
-
-        log.info("Updated albums count after removing artist: {}", updatedAlbums.size());
-
-        List<Long> artistIds = updatedAlbums.stream()
-                .flatMap(album -> album.getArtists().stream())
-                .map(Artist::getId)
-                .collect(Collectors.toList());
-
-        log.info("artist ids in updated albums: {}", artistIds);
-
-
-        for (Album album : updatedAlbums) {
-            log.info("Deleting album {}", album.getId());
-        }
-
-
-        Set<Album> orphanedAlbums = updatedAlbums.stream()
-                .filter(album -> album.getArtists().isEmpty())
+        Set<Album> albumsWithOneArtist = artistAlbums.stream()
+                .filter(album -> album.getArtists().size() == 1)
                 .collect(Collectors.toSet());
 
-        log.info("Albums with no artists to delete: {}", orphanedAlbums.size());
+
+        log.info("Albums with only one artist to delete: {} ", albumsWithOneArtist.size());
 
 
-        Set<Long> songIdsToDelete = orphanedAlbums.stream()
+        Set<Long> allSongsIdsFromAllAlbumsWhereWasOnlyOneArtist = albumsWithOneArtist.stream()
                 .flatMap(album -> album.getSongs().stream())
-                .map(Song::getId)
+                .map(song -> song.getId())
                 .collect(Collectors.toSet());
 
-        log.info("Songs to delete: {}", songIdsToDelete.size());
+        log.info("Songs to delete: {} ", allSongsIdsFromAllAlbumsWhereWasOnlyOneArtist.size());
 
+        songDeleter.deleteAllSongsByIds( allSongsIdsFromAllAlbumsWhereWasOnlyOneArtist);
 
-        Set<Long> albumIdsToDelete = orphanedAlbums.stream()
+        Set<Long> albumsIdsToDelete = albumsWithOneArtist.stream()
                 .map(Album::getId)
                 .collect(Collectors.toSet());
 
+        albumDeleter.deleteAllAblumsByIds(albumsIdsToDelete);
 
-        songRepository.deleteSongsByIds(songIdsToDelete);
-        albumRepository.deleteAlbumsByIds(albumIdsToDelete);
+
+        artistAlbums.stream()
+                .filter(album -> album.getArtists().size() >= 2)
+                .forEach(album -> album.removeArtist(artist));
+
 
         artistRepository.deleteById(artistId);
+
+
     }
-
-
-//    void deleteArtistByIdWithAlbumsAndSongs(Long artistId) {
-//        Artist artist = artistRetriever.findById(artistId);
-//        Set<Album> artistAlbums = albumRetriever.findAlbumsByArtistId(artistId);
-//        if(artistAlbums.isEmpty()){
-//            log.info("No albums found with id {} ", artistId);
-//            artistRepository.deleteById(artistId);
-//            return;
-//        }
-//
-//        artistAlbums.stream()
-//                .filter(album -> album.getArtists().size() >= 2)
-//                .forEach(album -> album.removeArtist(artist));
-//
-//        Set<Album> albumsWithOneArtist = artistAlbums.stream()
-//                .filter(album -> album.getArtists().size() == 1)
-//                .collect(Collectors.toSet());
-//
-////        artistRepository.removeAlbumFromArtist(artistId, );
-////
-////        artistAlbums.forEach(album -> {
-////            album.removeArtist(artist);
-////            albumRepository.save(album);
-////        });
-////
-////        entityManager.flush();
-//
-//
-////        Set<Album> albumsWithOneArtist = artistAlbums.stream()
-////                .filter(album -> album.getArtists().isEmpty())
-////                .collect(Collectors.toSet());
-//
-//        log.info("Albums with only one artist to delete: {} ", albumsWithOneArtist.size());
-//
-//
-//        Set<Long> allSongsIdsFromAllAlbumsWhereWasOnlyOneArtist = albumsWithOneArtist.stream()
-//                .flatMap(album -> album.getSongs().stream())
-//                .map(song -> song.getId())
-//                .collect(Collectors.toSet());
-//
-//        log.info("Songs to delete: {} ", allSongsIdsFromAllAlbumsWhereWasOnlyOneArtist.size());
-//
-//        songDeleter.deleteAllSongsByIds( allSongsIdsFromAllAlbumsWhereWasOnlyOneArtist);
-//
-//        Set<Long> albumsIdsToDelete = albumsWithOneArtist.stream()
-//                .map(Album::getId)
-//                .collect(Collectors.toSet());
-//
-//        albumDeleter.deleteAllAblumsByIds(albumsIdsToDelete);
-//
-//        albumsWithOneArtist.stream()
-//                        .forEach(album -> albumDeleter.deleteAlbumById(album.getId()));
-//
-//        artistRepository.deleteById(artistId);
-//
-//
-//    }
 }
+
+

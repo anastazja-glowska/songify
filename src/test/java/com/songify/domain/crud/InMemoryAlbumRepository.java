@@ -2,6 +2,7 @@ package com.songify.domain.crud;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -38,21 +39,30 @@ class InMemoryAlbumRepository implements AlbumRepository {
 
     @Override
     public int deleteByIdIn(Collection<Long> id) {
+        id.forEach(i -> db.remove(i));
         return 0;
     }
 
     @Override
     public void deleteById(Long id) {
-
+        Album album = db.get(id);
+        if(album.getArtists().size() == 1){
+            db.remove(id);
+        }
     }
 
-    @Override
-    public void deleteAlbumsByIds(Set<Long> ids) {
-
-    }
+//    @Override
+//    public void deleteAlbumsByIds(Set<Long> ids) {
+//
+//    }
 
     @Override
     public Optional<Album> findById(Long id) {
         return Optional.ofNullable(db.get(id));
+    }
+
+    @Override
+    public Set<Album> findAll() {
+        return  new HashSet<>(db.values());
     }
 }
