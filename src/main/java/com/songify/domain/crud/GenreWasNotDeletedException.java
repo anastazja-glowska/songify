@@ -1,7 +1,7 @@
 package com.songify.domain.crud;
 
-class GenreWasNotDeletedException extends RuntimeException {
-    GenreWasNotDeletedException(String message) {
+public class GenreWasNotDeletedException extends RuntimeException {
+    public GenreWasNotDeletedException(String message) {
         super(message);
     }
 }

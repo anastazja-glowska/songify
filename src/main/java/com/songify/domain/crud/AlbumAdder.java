@@ -3,6 +3,7 @@ package com.songify.domain.crud;
 import com.songify.domain.crud.dto.AlbumDto;
 import com.songify.domain.crud.dto.AlbumRequestDto;
 import com.songify.domain.crud.dto.SongDto;
+import com.songify.infrastructure.crud.album.AlbumWithSongsResponseDto;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +31,8 @@ class AlbumAdder {
 
         album.setReleaseDate(instant);
         Album savedAlbum = albumRepository.save(album);
-        return new AlbumDto(savedAlbum.getId(), savedAlbum.getTitle());
+        Set<Long> songsIds = songs.stream().map(song -> song.getId()).collect(Collectors.toSet());
+        return new AlbumDto(savedAlbum.getId(), savedAlbum.getTitle(), songsIds);
     }
 
 
@@ -42,11 +44,15 @@ class AlbumAdder {
 
     }
 
-    void addSongToAlbum(SongDto songDto2, Long albumId) {
-        Song song = songRetrierver.findSongById(songDto2.id());
+    AlbumWithSongsResponseDto addSongToAlbum(Long songId, Long albumId) {
+        Song song = songRetrierver.findSongById(songId);
         Album album = albumRepository.findById(albumId).orElseThrow(() ->
                 new AlbumNotFoundEcxeption("Album with id " + albumId + " not found"));
         album.addSongToAlbum(song);
 
+        Set<Long> songIds = album.getSongIds();
+        return new AlbumWithSongsResponseDto(album.getId(), album.getTitle(), songIds );
+
     }
+
 }

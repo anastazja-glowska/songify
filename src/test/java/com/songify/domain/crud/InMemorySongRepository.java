@@ -21,7 +21,7 @@ class InMemorySongRepository implements  SongRepository {
         long id = atomicInteger.getAndIncrement();
         db.put(id, song);
         song.setId(id);
-        song.setGenre(new Genre(1L, "Pop"));
+//        song.setGenre(new Genre(1L, "Pop"));
         return song;
     }
 

@@ -52,6 +52,7 @@ import static java.util.Arrays.stream;
         return songRepository.findById(id).map(song -> SongDto.builder()
                  .id(song.getId())
                  .name(song.getName())
+                        .genre(new GenreDto(song.getGenre().getId(), song.getGenre().getName()))
                  .build())
                 .orElseThrow(() -> new SongNotFoundException(
                         "Song not found"));

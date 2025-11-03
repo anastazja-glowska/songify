@@ -10,6 +10,7 @@ import com.songify.domain.crud.dto.ArtistRequestDto;
 import com.songify.domain.crud.dto.GenreDto;
 import com.songify.domain.crud.dto.GenreRequestDto;
 import com.songify.domain.crud.dto.SongRequestDto;
+import com.songify.infrastructure.crud.album.AlbumWithSongsResponseDto;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,8 @@ public class SongifyCrudFasade {
     private final ArtistDeleter artistDeleter;
     private final ArtistAssigner artistAssigner;
     private final ArtistUpdater artistUpdater;
+    private final GenreRetrever genreRetrever;
+    private final GenreAssigner genreAssigner;
 
 
     public ArtistDto addArtist(ArtistRequestDto dto){
@@ -143,7 +146,15 @@ public class SongifyCrudFasade {
         return albumRetriever.findAll();
     }
 
-    void addSongToAlbum(SongDto songDto2, Long albumId) {
-        albumAdder.addSongToAlbum(songDto2, albumId);
+    public AlbumWithSongsResponseDto addSongToAlbum(Long songId, Long albumId) {
+        return albumAdder.addSongToAlbum(songId, albumId);
+    }
+
+    public Set<GenreDto> retrieveGenres() {
+        return genreRetrever.findAllGenres();
+    }
+
+    public void assignGenreToSong(Long songId, Long genreId) {
+        genreAssigner.assignGenreToSong(songId, genreId);
     }
 }

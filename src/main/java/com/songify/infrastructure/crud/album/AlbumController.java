@@ -13,10 +13,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Set;
 
 @AllArgsConstructor
 @RestController
@@ -26,14 +29,27 @@ class AlbumController {
     private final SongifyCrudFasade songifyCrudFasade;
 
     @PostMapping
-    public ResponseEntity<AlbumDto> postAlbum(@RequestBody AlbumRequestDto dto) {
+    ResponseEntity<AlbumDto> postAlbum(@RequestBody AlbumRequestDto dto) {
         AlbumDto albumDto = songifyCrudFasade.addAlbumWithSong(dto);
         return  ResponseEntity.ok(albumDto);
     }
 
     @GetMapping("{albumId}")
-    public ResponseEntity<AlbumWithArtistsAndSongsDto> getAlbumByIdWithArtistsAndSongs(@PathVariable Long albumId){
+     ResponseEntity<AlbumWithArtistsAndSongsDto> getAlbumByIdWithArtistsAndSongs(@PathVariable Long albumId){
         AlbumWithArtistsAndSongsDto albumDto = songifyCrudFasade.findAlbumByIdWithArtistsAndSongs(albumId);
         return ResponseEntity.ok(albumDto);
+    }
+
+    @GetMapping
+    ResponseEntity<AllAlbumsDto> getAllAlbums(){
+        Set<AlbumDto> allAlbums = songifyCrudFasade.findAllAlbums();
+        return  ResponseEntity.ok(new AllAlbumsDto(allAlbums));
+
+    }
+
+    @PutMapping("/{albumId}/songs/{songId}")
+    ResponseEntity<AlbumWithSongsResponseDto> addSongToAlbum(@PathVariable Long albumId, @PathVariable Long songId){
+        AlbumWithSongsResponseDto albumWithSongsResponseDto = songifyCrudFasade.addSongToAlbum(songId, albumId);
+        return  ResponseEntity.ok(albumWithSongsResponseDto);
     }
 }

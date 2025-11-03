@@ -94,6 +94,12 @@ public class SongsRestController {
 
     }
 
+    @PutMapping("{songId}/genres/{genreId}")
+    public ResponseEntity<String> assignGenreToSong(@PathVariable Long songId, @PathVariable Long genreId) {
+        songCrudFasade.assignGenreToSong(songId, genreId);
+        return ResponseEntity.ok("updated");
+    }
+
     @PatchMapping("/{id}")
     public ResponseEntity<PartiallyUpdateSongResponseDto> partiallyUpdate(@PathVariable Long id, @RequestBody
     PartiallyUpdateSongRequestDto request){

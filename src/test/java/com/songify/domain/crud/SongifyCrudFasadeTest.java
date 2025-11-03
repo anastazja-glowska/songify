@@ -70,6 +70,31 @@ class SongifyCrudFasadeTest {
         assertThat(throwable.getMessage()).isEqualTo("Artist with id " + 1L + " not found");
     }
 
+    @Test
+    @DisplayName("should retrieve song by id")
+    void should_retrieve_song_by_id(){
+
+        //given
+        SongRequestDto songRequestDto = SongRequestDto.builder()
+                .name("song1")
+                .language(SongLanguageDto.ENGLISH).build();
+
+
+        SongDto songDto = songifyCrudFasade.addSong(songRequestDto);
+
+        Long songId = songDto.id();
+
+        //when
+        SongDto songDtoById = songifyCrudFasade.findSongDtoById(songId);
+
+        //then
+        assertThat(songDtoById.id()).isEqualTo(songId);
+        assertThat(songDtoById.name()).isEqualTo("song1");
+        assertThat(songDtoById.genre().name()).isEqualTo("default");
+
+
+    }
+
 
     @Test
     @DisplayName("should not throw exception Artist not found when artist exist")
@@ -236,7 +261,7 @@ class SongifyCrudFasadeTest {
         Long albumId = albumDto.id();
         Long albumId2 = albumDto2.id();
 
-        songifyCrudFasade.addSongToAlbum(songDto2, albumId);
+        songifyCrudFasade.addSongToAlbum(songId2, albumId);
 
         songifyCrudFasade.addArtistToAlbum(artistId, albumId);
         songifyCrudFasade.addArtistToAlbum(artistId, albumId2);

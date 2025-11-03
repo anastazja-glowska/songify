@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
  class SongAdder {
 
     private final SongRepository songRepository;
+    private final GenreAssigner genreAssigner;
 
      SongDto addSong(SongRequestDto songDto) {
         log.info(songDto);
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
          SongLanguage songLanguage = SongLanguage.valueOf(language.name());
          Song song = new Song(songDto.name(), songDto.releaseDate(), songDto.duration(), songLanguage);
             Song savedSong = songRepository.save(song);
+            genreAssigner.assignDefultGenreToSong(song.getId());
          return new SongDto(savedSong.getId(), savedSong.getName(),
                  new GenreDto(savedSong.getGenre().getId(), savedSong.getGenre().getName()));
     }
