@@ -20,8 +20,7 @@ import java.util.UUID;
 @Log4j2
 @Component
 @AllArgsConstructor
-@Service
-class UserDetailsServiceImpl implements UserDetailsManager {
+public class UserDetailsServiceImpl implements UserDetailsManager {
 
 
     private static final String DEFAULT_USER_ROLE = "ROLE_USER";
@@ -38,7 +37,7 @@ class UserDetailsServiceImpl implements UserDetailsManager {
     @Override
     public void createUser(UserDetails user) {
             if(userExists(user.getUsername())) {
-                log.warn("Username {} already exists - user not saveed", user.getUsername());
+                log.warn("Username {} already exists - user not saved", user.getUsername());
                 throw  new RuntimeException("Username already exists");
             }
 

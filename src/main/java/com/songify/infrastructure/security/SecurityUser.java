@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
-class SecurityUser implements UserDetails {
+ public class SecurityUser implements UserDetails {
 
     private final User user;
 
@@ -23,6 +23,10 @@ class SecurityUser implements UserDetails {
                         return authority;
                     }
                 }).collect(Collectors.toList());
+    }
+
+    public List<String> getAuthoritiesAsString(){
+        return user.getAuthorities().stream().toList();
     }
 
     @Override
