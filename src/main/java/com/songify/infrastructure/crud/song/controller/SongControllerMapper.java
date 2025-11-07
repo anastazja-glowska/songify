@@ -19,12 +19,6 @@ import java.util.List;
 class SongControllerMapper {
 
 
-    static SongDto mapFromCreateSongRequestDtoToSongDto(CreateSongRequestDto request) {
-        return SongDto.builder()
-                .name(request.songName())
-                .build();
-    }
-
     static SongDto mapFromUpdateSongRequestDtoToSongDto(UpdateSongRequestDto request) {
         return SongDto.builder()
                 .name(request.songName())

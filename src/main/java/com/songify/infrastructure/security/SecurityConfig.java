@@ -1,6 +1,6 @@
 package com.songify.infrastructure.security;
 
-import com.songify.infrastructure.security.jwt.JwtAuthTokenFilter;
+import com.songify.infrastructure.security.jwt.JwtAuthConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -42,17 +43,29 @@ class SecurityConfig {
     }
 
     @Bean
-    SecurityFilterChain securityFilterChain( HttpSecurity http, JwtAuthTokenFilter jwtAuthTokenFilter) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationSuccessHandler successHandler,
+                                            JwtAuthConverter converter, CookieTokenResolver resolver
+                                            ) throws Exception {
         http.csrf(c -> c.disable());
         http.cors(corsConfigurerCustomizer());
 
         http.formLogin(c -> c.disable());
         http.httpBasic(c -> c.disable());
+        http.oauth2ResourceServer(c ->c.jwt(
+                jwt -> jwt.jwtAuthenticationConverter(converter))
+                .bearerTokenResolver(resolver)
+        );
+//        http.oauth2Login(c -> c.successHandler(successHandler)
+//                .userInfoEndpoint(userInfo -> userInfo.oidcUserService(
+//                        customOidcUserService
+//                )));
+        http.oauth2Login(c -> c.successHandler(successHandler));
+
 
 
 
         http.sessionManagement(c -> c.sessionCreationPolicy( SessionCreationPolicy.STATELESS));
-        http.addFilterBefore(jwtAuthTokenFilter, UsernamePasswordAuthenticationFilter.class);
+
 
 
         http.authorizeHttpRequests(authorize ->
@@ -60,11 +73,12 @@ class SecurityConfig {
                         .requestMatchers("/swagger-resources/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/users/register/**").permitAll()
-                        .requestMatchers("/token/**").permitAll()
+                        .requestMatchers("/users/confirm/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/songs/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/artists/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/albums/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/genres/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/message").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/songs/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/songs/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/songs/**").hasRole("ADMIN")

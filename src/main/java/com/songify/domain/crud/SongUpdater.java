@@ -34,10 +34,6 @@ class SongUpdater {
             log.info("New song name: " + updatedSong.getName());
         }
 
-//        if(updatedSong.getArtist() != null) {
-//            songFromDataBase.setArtist(updatedSong.getArtist());
-//            log.info("New song artist: " + updatedSong.getArtist());
-//        }
 
 
         return songFromDataBase;
