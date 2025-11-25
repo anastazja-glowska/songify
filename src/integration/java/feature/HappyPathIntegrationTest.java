@@ -4,6 +4,8 @@ package feature;
 import com.songify.SongifyApplication;
 import com.songify.infrastructure.security.jwt.JwtAuthConverter;
 import lombok.extern.log4j.Log4j2;
+import org.HdrHistogram.packedarray.PackedArrayRecorder;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -39,6 +41,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Log4j2
 class HappyPathIntegrationTest implements MockSongsRequest {
 
+    private static final String SONGS_ENDPOINT = "/songs";
+    private static final String GENRES_ENDPOINT = "/genres";
+    private static final String ALBUMS_ENDPOINT = "/albums";
+    private static final String ARTISTS_ENDPOINT = "/artists";
+
     @Container
     static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:14-alpine");
 
@@ -56,36 +63,42 @@ class HappyPathIntegrationTest implements MockSongsRequest {
     }
 
 
-
     @Test
-    void happy_path() throws Exception {
+    @DisplayName("Should authenticated user retrieve, edit, delete, add songs, albums, genres and artists ")
+    void should_authenticated_user_retrieve_edit_delete_add_songs_albums_genres_and_artists() throws Exception {
 
 
 //        1. when I go to /songs without jwt then I can see no songs
 
-        ResultActions perform = mockMvc.perform(get("/songs")
+        //given && when
+        ResultActions perform = mockMvc.perform(get(SONGS_ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON));
 
+
+        //then
         perform.andExpect(status().isOk())
                 .andExpect(jsonPath("$.songs", empty()));
 
 
         // SECURITY STEP when i go to /songs with jwt then I can see no songs
 
-        ResultActions perform2 = mockMvc.perform(get("/songs")
+        //given && when
+        ResultActions perform2 = mockMvc.perform(get(SONGS_ENDPOINT)
                 .with(jwt())
                 .contentType(MediaType.APPLICATION_JSON));
 
+        //then
         perform2.andExpect(status().isOk())
                 .andExpect(jsonPath("$.songs", empty()));
 
 
         // SECURITY STEP  when I post to /songs without jwt with Song "Song Title" then 401 is returned
 
-        ResultActions resultActions2 = mockMvc.perform(post("/songs"));
+        //given && when
+        ResultActions resultActions2 = mockMvc.perform(post(SONGS_ENDPOINT));
 
 
-
+        //then
         resultActions2
                 .andExpect(status().isUnauthorized());
 
@@ -93,16 +106,18 @@ class HappyPathIntegrationTest implements MockSongsRequest {
         // SECURITY STEP  when I post to /songs with User role with Song "Song Title" then 403 is returned
 
 
-        ResultActions resultActions3 = mockMvc.perform(post("/songs")
+        //given && when
+        ResultActions resultActions3 = mockMvc.perform(post(SONGS_ENDPOINT)
                 .with(authentication(createJwtWithUserRole())));
 
+        //then
         resultActions3.andExpect(status().isForbidden());
 
 
 //        2. when I post to /songs with Song "Song Title" then Song "Song Title" is returned with id 1
 
-
-        ResultActions resultActions = mockMvc.perform(post("/songs")
+        //given && when
+        ResultActions resultActions = mockMvc.perform(post(SONGS_ENDPOINT)
                 .with(authentication(createJwtWithAdminRole()))
                 .content(
                         retrieveSongWithDurationZero()
@@ -113,6 +128,7 @@ class HappyPathIntegrationTest implements MockSongsRequest {
         log.info("contentAsString: {}", contentAsString);
 
 
+        //then
         resultActions
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.song.id", is(1)))
@@ -123,7 +139,8 @@ class HappyPathIntegrationTest implements MockSongsRequest {
 
 //        3. when I post to /songs with Song "Lose Yourself" then Song "Lose Yourself" is returned with id 2
 
-        ResultActions result = mockMvc.perform(post("/songs")
+        //given && when
+        ResultActions result = mockMvc.perform(post(SONGS_ENDPOINT)
                 .with(authentication(createJwtWithAdminRole()))
                 .content(
                         retrieveSongLoseYourself()
@@ -132,14 +149,16 @@ class HappyPathIntegrationTest implements MockSongsRequest {
         String contentAsString2 = result.andReturn().getResponse().getContentAsString();
         log.info("contentAsString song Lose YourSelf: {}", contentAsString2);
 
+
+        //then
         result.andExpect(status().isOk())
                 .andExpect(jsonPath("$.song.id", is(2)));
 
 
 //        4. when I go to /genres then I can see default genre with Id 1
 
-
-        mockMvc.perform(get("/genres").contentType(MediaType.APPLICATION_JSON))
+        //given && when && then
+        mockMvc.perform(get(GENRES_ENDPOINT).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.genres[0].id", is(1)))
                 .andExpect(jsonPath("$.genres[0].name", is("default")));
@@ -147,7 +166,8 @@ class HappyPathIntegrationTest implements MockSongsRequest {
 
         //  5. when I post to /genres with Genre "Rap" then Genre "Rap" is returned with id 2
 
-        ResultActions genre = mockMvc.perform(post("/genres")
+        //given && when
+        ResultActions genre = mockMvc.perform(post(GENRES_ENDPOINT)
                 .with(authentication(createJwtWithAdminRole()))
                 .content(
                         retrieveGenreRap()
@@ -157,6 +177,8 @@ class HappyPathIntegrationTest implements MockSongsRequest {
         String genreString = genre.andReturn().getResponse().getContentAsString();
         log.info("genreString: {}", genreString);
 
+
+        //then
         genre.andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(2)))
                 .andExpect(jsonPath("$.name", is("Rap")));
@@ -164,9 +186,11 @@ class HappyPathIntegrationTest implements MockSongsRequest {
 
         //  6. when I go to /songs/1 then I can see default genre with id 1 and name default
 
-        ResultActions songsOne = mockMvc.perform(get("/songs/1")
+        //given && when
+        ResultActions songsOne = mockMvc.perform(get(SONGS_ENDPOINT+ "/1")
                 .contentType(MediaType.APPLICATION_JSON));
 
+        //then
         songsOne.andExpect(status().isOk())
                 .andExpect(jsonPath("$.song.id", is(1)))
                 .andExpect(jsonPath("$.song.genre.id", is(1)))
@@ -175,20 +199,25 @@ class HappyPathIntegrationTest implements MockSongsRequest {
 
         //  7. when I put to /songs/1/genres/2 then Genre with id 2 ("Rap") is added to Song with id 1 ("Til i collapse")
 
-
+        //given && when
         ResultActions putSongWithGenre = mockMvc.perform(put("/songs/1/genres/2")
-                        .with(authentication(createJwtWithAdminRole()))
+                .with(authentication(createJwtWithAdminRole()))
                 .contentType(MediaType.APPLICATION_JSON));
 
 
+        //then
         putSongWithGenre.andExpect(status().isOk())
                 .andExpect(jsonPath("$", is("updated")));
 
 
         //  8. when I go to /songs/1 then I can see "Rap" genre
-        ResultActions getSongWithGenre = mockMvc.perform(get("/songs/1")
+
+        //given && when
+        ResultActions getSongWithGenre = mockMvc.perform(get(SONGS_ENDPOINT+ "/1")
                 .contentType(MediaType.APPLICATION_JSON));
 
+
+        //then
         getSongWithGenre.andExpect(status().isOk())
                 .andExpect(jsonPath("$.song.id", is(1)))
                 .andExpect(jsonPath("$.song.genre.id", is(2)))
@@ -197,22 +226,24 @@ class HappyPathIntegrationTest implements MockSongsRequest {
 
         //  9. when I go to /albums then I can see no albums
 
-
-        ResultActions getAlbums = mockMvc.perform(get("/albums")
+        //given && when
+        ResultActions getAlbums = mockMvc.perform(get(ALBUMS_ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON));
 
+        //then
         getAlbums.andExpect(status().isOk())
                 .andExpect(jsonPath("$.albums", empty()));
 
 
 //        10. when I post to /albums with Album "EminemAlbum1" and Song with id 1 then Album "EminemAlbum1" is returned with id 1
 
-
-        ResultActions postAlbums = mockMvc.perform(post("/albums")
+        //given && when
+        ResultActions postAlbums = mockMvc.perform(post(ALBUMS_ENDPOINT)
                 .with(authentication(createJwtWithAdminRole()))
                 .content(retrieveEminemAlbum())
                 .contentType(MediaType.APPLICATION_JSON));
 
+        //then
         postAlbums.andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.name", is("EminemAlbum1")))
@@ -221,9 +252,12 @@ class HappyPathIntegrationTest implements MockSongsRequest {
 
         //  11. when I go to /albums/1 then I can not see any albums because there is no artist in system
 
-        ResultActions getAlbumWithNoArtist = mockMvc.perform(get("/albums/1")
+        //given && when
+        ResultActions getAlbumWithNoArtist = mockMvc.perform(get(ALBUMS_ENDPOINT+ "/1")
                 .contentType(MediaType.APPLICATION_JSON));
 
+
+        //then
         getAlbumWithNoArtist.andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message", is("Album with id 1 not found")))
                 .andExpect(jsonPath("$.httpStatus", is("NOT_FOUND")));
@@ -231,11 +265,13 @@ class HappyPathIntegrationTest implements MockSongsRequest {
 
         //  12. when I post to /artists with Artist "Eminem" then Artist "Eminem" is returned with id 1
 
-        ResultActions postArtist = mockMvc.perform(post("/artists")
+        //given && when
+        ResultActions postArtist = mockMvc.perform(post(ARTISTS_ENDPOINT)
                 .with(authentication(createJwtWithAdminRole()))
                 .content(retrieveEminemArtist())
                 .contentType(MediaType.APPLICATION_JSON));
 
+        //then
         postArtist.andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.name", is("Eminem")));
@@ -243,29 +279,37 @@ class HappyPathIntegrationTest implements MockSongsRequest {
 
         //  13. when I put to /artists/1/albums/1 then Artist with id 1 ("Eminem") is added to Album with id 1 ("EminemAlbum1")
 
-        ResultActions putArtistToAlbum = mockMvc.perform(put("/artists/1/1")
+        //given && when
+        ResultActions putArtistToAlbum = mockMvc.perform(put(ARTISTS_ENDPOINT+ "/1/1")
                 .with(authentication(createJwtWithAdminRole()))
                 .contentType(MediaType.APPLICATION_JSON));
 
+        //then
         putArtistToAlbum.andExpect(status().isOk())
                 .andExpect(jsonPath("$", is("Album with id " + 1 + " has been added to Artist with id " + 1 + ".")));
 
 
+
         //  14. when I go to /albums/1 then I can see album with single song with id 1 and single artist with id 1
 
-        ResultActions getAlbumWithSongAndArtist = mockMvc.perform(get("/albums/1")
+        //given && when
+        ResultActions getAlbumWithSongAndArtist = mockMvc.perform(get(ALBUMS_ENDPOINT+ "/1")
                 .contentType(MediaType.APPLICATION_JSON));
 
+        //then
         getAlbumWithSongAndArtist.andExpect(status().isOk())
                 .andExpect(jsonPath("$.artists[*].id", containsInAnyOrder(1)))
                 .andExpect(jsonPath("$.songs[*].id", containsInAnyOrder(1)));
 
 
         //  15. when I put to /albums/1/songs/2 then Song with id 2 ("Lose Yourself") is added to Album with id 1 ("EminemAlbum1")
+
+        //given && when
         ResultActions putSongToAlbum = mockMvc.perform(put("/albums/1/songs/2")
                 .with(authentication(createJwtWithAdminRole()))
                 .contentType(MediaType.APPLICATION_JSON));
 
+        //then
         putSongToAlbum.andExpect(status().isOk())
                 .andExpect(jsonPath("$.albumId", is(1)))
                 .andExpect(jsonPath("$.name", is("EminemAlbum1")))
@@ -274,10 +318,12 @@ class HappyPathIntegrationTest implements MockSongsRequest {
 
         //  16. when I go to /albums/1 then I can see album with 2 songs (id1 and id2)
 
-
-        ResultActions getAlbumWithSongs = mockMvc.perform(get("/albums/1")
+        //given && when
+        ResultActions getAlbumWithSongs = mockMvc.perform(get( ALBUMS_ENDPOINT+"/1")
                 .contentType(MediaType.APPLICATION_JSON));
 
+
+        //then
         getAlbumWithSongs.andExpect(status().isOk())
                 .andExpect(jsonPath("$.album.id", is(1)))
                 .andExpect(jsonPath("$.songs[*].id", containsInAnyOrder(1, 2)));

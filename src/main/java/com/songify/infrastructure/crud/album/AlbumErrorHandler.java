@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 @Log4j2
-class AlbumErrorHandler {
+public class AlbumErrorHandler {
 
 
     @ExceptionHandler(AlbumNotFoundEcxeption.class)

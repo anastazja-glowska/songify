@@ -17,50 +17,50 @@ import static java.util.Arrays.stream;
 @Service
 @Log4j2
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
- class SongRetrierver {
+class SongRetrierver {
+
+    private static final String SONG_NOT_FOUND = "Song not found";
 
     private final SongRepository songRepository;
 
 
-
-
-     List< SongDto> findAll(Pageable pageable) {
+    List<SongDto> findAll(Pageable pageable) {
         log.info("Retriving all songs");
 
-         List<SongDto> songDtos = new ArrayList<>();
-         List<Song> songs = songRepository.findAll(pageable);
+        List<SongDto> songDtos = new ArrayList<>();
+        List<Song> songs = songRepository.findAll(pageable);
 
-         for(Song s : songs){
-             Genre genre = s.getGenre();
-             GenreDto genreDto = new GenreDto(genre.getId(), genre.getName());
+        for (Song s : songs) {
+            Genre genre = s.getGenre();
+            GenreDto genreDto = new GenreDto(genre.getId(), genre.getName());
 
-             SongDto songDto = SongDto.builder()
-                     .id(s.getId())
-                     .name(s.getName())
-                     .genre(genreDto)
-                        .build();
+            SongDto songDto = SongDto.builder()
+                    .id(s.getId())
+                    .name(s.getName())
+                    .genre(genreDto)
+                    .build();
 
-                songDtos.add(songDto);
-         }
+            songDtos.add(songDto);
+        }
 
-         return  songDtos;
+        return songDtos;
 
-     }
+    }
 
 
-     SongDto findSongDtoById(Long id) {
+    SongDto findSongDtoById(Long id) {
         return songRepository.findById(id).map(song -> SongDto.builder()
-                 .id(song.getId())
-                 .name(song.getName())
+                        .id(song.getId())
+                        .name(song.getName())
                         .genre(new GenreDto(song.getGenre().getId(), song.getGenre().getName()))
-                 .build())
+                        .build())
                 .orElseThrow(() -> new SongNotFoundException(
-                        "Song not found"));
+                        SONG_NOT_FOUND));
     }
 
     Song findSongById(Long id) {
         return songRepository.findById(id)
-                .orElseThrow(() -> new SongNotFoundException("Song not found"));
+                .orElseThrow(() -> new SongNotFoundException(SONG_NOT_FOUND));
     }
 
 }

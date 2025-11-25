@@ -26,13 +26,10 @@ class ArtistDeleter {
     private final SongRepository songRepository;
 
 
-
-
-
     void deleteArtistByIdWithAlbumsAndSongs(Long artistId) {
         Artist artist = artistRetriever.findById(artistId);
         Set<Album> artistAlbums = albumRetriever.findAlbumsByArtistId(artistId);
-        if(artistAlbums.isEmpty()){
+        if (artistAlbums.isEmpty()) {
             log.info("No albums found with id {} ", artistId);
             artistRepository.deleteById(artistId);
             return;
@@ -54,7 +51,7 @@ class ArtistDeleter {
 
         log.info("Songs to delete: {} ", allSongsIdsFromAllAlbumsWhereWasOnlyOneArtist.size());
 
-        songDeleter.deleteAllSongsByIds( allSongsIdsFromAllAlbumsWhereWasOnlyOneArtist);
+        songDeleter.deleteAllSongsByIds(allSongsIdsFromAllAlbumsWhereWasOnlyOneArtist);
 
         Set<Long> albumsIdsToDelete = albumsWithOneArtist.stream()
                 .map(Album::getId)
