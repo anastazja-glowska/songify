@@ -37,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("integration")
 @Log4j2
-class HappyPathIntegrationTest {
+class HappyPathIntegrationTest implements MockSongsRequest {
 
     @Container
     static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:14-alpine");
@@ -55,12 +55,6 @@ class HappyPathIntegrationTest {
         postgreSQLContainer.getJdbcUrl();
     }
 
-
-//    @Test
-//    void contextLoads() {
-//
-//        assertTrue(postgreSQLContainer.isRunning());
-//    }
 
 
     @Test
@@ -111,14 +105,7 @@ class HappyPathIntegrationTest {
         ResultActions resultActions = mockMvc.perform(post("/songs")
                 .with(authentication(createJwtWithAdminRole()))
                 .content(
-                        """
-                                {
-                                  "name": "Song Title",
-                                  "releaseDate": "2025-03-25T13:55:20.850Z",
-                                  "duration": 0,
-                                  "language": "ENGLISH" 
-                                }
-                                """.trim()
+                        retrieveSongWithDurationZero()
                 ).contentType(MediaType.APPLICATION_JSON));
 
 
@@ -139,14 +126,7 @@ class HappyPathIntegrationTest {
         ResultActions result = mockMvc.perform(post("/songs")
                 .with(authentication(createJwtWithAdminRole()))
                 .content(
-                        """
-                                {
-                                  "name": "Lose YourSelf",
-                                  "releaseDate": "2025-01-25T13:55:20.850Z",
-                                  "duration": 5,
-                                  "language": "ENGLISH" 
-                                }
-                                """.trim()
+                        retrieveSongLoseYourself()
                 ).contentType(MediaType.APPLICATION_JSON));
 
         String contentAsString2 = result.andReturn().getResponse().getContentAsString();
@@ -170,11 +150,7 @@ class HappyPathIntegrationTest {
         ResultActions genre = mockMvc.perform(post("/genres")
                 .with(authentication(createJwtWithAdminRole()))
                 .content(
-                        """
-                                {
-                                  "name": "Rap"
-                                }
-                                """.trim()
+                        retrieveGenreRap()
                 ).contentType(MediaType.APPLICATION_JSON));
 
 
@@ -234,15 +210,7 @@ class HappyPathIntegrationTest {
 
         ResultActions postAlbums = mockMvc.perform(post("/albums")
                 .with(authentication(createJwtWithAdminRole()))
-                .content("""
-                        {
-                          "songIds": [
-                            1
-                          ],
-                          "title": "EminemAlbum1",
-                          "releaseDate": "2025-11-03T14:28:07.043Z"
-                        }
-                        """)
+                .content(retrieveEminemAlbum())
                 .contentType(MediaType.APPLICATION_JSON));
 
         postAlbums.andExpect(status().isOk())
@@ -265,11 +233,7 @@ class HappyPathIntegrationTest {
 
         ResultActions postArtist = mockMvc.perform(post("/artists")
                 .with(authentication(createJwtWithAdminRole()))
-                .content("""
-                        {
-                          "name": "Eminem"
-                        }
-                        """.trim())
+                .content(retrieveEminemArtist())
                 .contentType(MediaType.APPLICATION_JSON));
 
         postArtist.andExpect(status().isOk())
